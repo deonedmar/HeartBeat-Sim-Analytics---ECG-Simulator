@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+# simulação corrigida
 def generate_ecg_beat(amplitude_scale=1.0, duration_scale=1.0):
     """
     Gera dados simulados para um único batimento cardíaco de ECG.
