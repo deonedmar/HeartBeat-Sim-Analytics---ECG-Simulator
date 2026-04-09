@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def gerar_ecg(bpm, duracao=2, fs=1000):
+    t = np.linspace(0, duracao, duracao * fs)
+    ecg = np.zeros_like(t)
+
+    # Cálculo do intervalo entre batimentos
+    intervalo_rr = 60 / bpm
+    batimentos = np.arange(0.2, duracao, intervalo_rr)
+
+    for b in batimentos:
+        # Onda P (Suave e pequena)
+        ecg += 0.15 * np.exp(-((t - (b - 0.15)) ** 2) / (2 * 0.01 ** 2))
+
+        # Complexo QRS
+        # Onda Q (Pequena deflexão negativa)
+        ecg -= 0.05 * np.exp(-((t - (b - 0.02)) ** 2) / (2 * 0.005 ** 2))
+        # Onda R (Pico agudo e alto - Reduzimos o desvio padrão para 0.005)
+        ecg += 1.0 * np.exp(-((t - b) ** 2) / (2 * 0.005 ** 2))
+        # Onda S (Deflexão negativa após o R)
+        ecg -= 0.15 * np.exp(-((t - (b + 0.02)) ** 2) / (2 * 0.005 ** 2))
+
+        # Onda T (Mais larga que a P e o QRS)
+        ecg += 0.25 * np.exp(-((t - (b + 0.2)) ** 2) / (2 * 0.02 ** 2))
+
+    return t, ecg
+
+
+# Gerando os três cenários
+ritmos = {"Normal": 60, "Taquicardia": 100, "Bradicardia": 50}
+plt.figure(figsize=(12, 8))
+
+for i, (nome, bpm) in enumerate(ritmos.items(), 1):
+    t, ecg = gerar_ecg(bpm)
+    plt.subplot(3, 1, i)
+    plt.plot(t, ecg, color='blue', lw=1.5)
+    plt.title(f"{nome} - {bpm} BPM")
+    plt.ylabel("Amplitude (mV)")
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.ylim(-0.3, 1.2)  # Ajuste para mostrar as ondas Q e S
+
+plt.tight_layout()
+plt.xlabel("Tempo (s)")
+plt.show()
